@@ -45,7 +45,7 @@ namespace AssetRipper.Console
                 settings.LogConfigurationValues();               
                 GameData gameData = LoadAndProcess(inputPaths);
                 PrepareExportDirectory(outputPath);
-                Ripper.ExportProject(gameData, settings, outputPath, GetDefaultPostExporters(), GetBeforeExport());
+                Ripper.ExportProject(gameData, settings, outputPath, Ripper.GetDefaultPostExporters(), null);
                 
             } catch {
 				System.Console.WriteLine("An extraction error happened");
@@ -66,47 +66,7 @@ namespace AssetRipper.Console
 
         private static void Process(GameData gameData)
         {
-            Ripper.Process(gameData, GetDefaultProcessors(settings));
-        }
-
-        public static IEnumerable<IAssetProcessor> GetDefaultProcessors(LibraryConfiguration settings)
-        {
-            if (settings.ScriptContentLevel == ScriptContentLevel.Level1)
-            {
-                yield return new MethodStubbingProcessor();
-            }
-            yield return new SceneDefinitionProcessor();
-            yield return new MainAssetProcessor();
-            yield return new LightingDataProcessor();
-            yield return new AnimatorControllerProcessor();
-            yield return new AudioMixerProcessor();
-            yield return new EditorFormatProcessor(settings.BundledAssetsExportMode);
-            //Static mesh separation goes here
-            if (settings.EnablePrefabOutlining)
-            {
-                yield return new PrefabOutliningProcessor();
-            }
-            yield return new PrefabProcessor();
-            yield return new SpriteProcessor();
-        }
-
-        protected static Action<ProjectExporter>? GetBeforeExport()
-        {
-            return null;
-        }
-
-        public static IEnumerable<IPostExporter> GetDefaultPostExporters()
-        {
-            yield return new ProjectVersionPostExporter();
-            yield return new PackageManifestPostExporter();
-            yield return new StreamingAssetsPostExporter();
-            yield return new DllPostExporter();
-            yield return new PathIdMapExporter();
-        }
-
-        protected static IEnumerable<IPostExporter> GetPostExporters()
-        {
-            return GetDefaultPostExporters();
+            Ripper.Process(gameData, Ripper.GetDefaultProcessors(settings));
         }
 
         private static void PrepareExportDirectory(string path)
