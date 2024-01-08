@@ -2,6 +2,8 @@
 using AssetRipper.Assets.Generics;
 using AssetRipper.Assets.Metadata;
 using AssetRipper.Assets.Traversal;
+using AssetRipper.SourceGenerated.Classes.ClassID_114;
+using AssetRipper.SourceGenerated.Classes.ClassID_2089858483;
 using AssetRipper.SourceGenerated.Subclasses.GUID;
 using System.CodeDom.Compiler;
 using System.Globalization;
@@ -11,12 +13,11 @@ namespace AssetRipper.Export.UnityProjects;
 
 public class DefaultYamlWalker : AssetWalker
 {
-	private readonly StringWriter stringWriter = new(CultureInfo.InvariantCulture) { NewLine = "\n" };
 	protected IndentedTextWriter Writer { get; }
 	protected bool FlowMapping { get; private set; }
 	protected bool FirstField { get; private set; }
 	protected bool JustEnteredListItem { get; private set; }
-	private string CurrentText => stringWriter.ToString();
+	protected bool JustEnteredMonoBehaviourStructure { get; private set; }
 	protected virtual bool UseHyphenInStringDictionary => true;
 
 	private const string Head = """
@@ -25,9 +26,14 @@ public class DefaultYamlWalker : AssetWalker
 		""";
 	private const string IndentString = "  ";
 
-	public DefaultYamlWalker()
+	public DefaultYamlWalker(TextWriter innerWriter)
 	{
-		Writer = new IndentedTextWriter(stringWriter, IndentString);
+		Writer = new IndentedTextWriter(innerWriter, IndentString);
+		WriteHead();
+	}
+
+	protected void WriteHead()
+	{
 		Writer.WriteLine(Head);
 	}
 
@@ -56,7 +62,6 @@ public class DefaultYamlWalker : AssetWalker
 
 	public DefaultYamlWalker AppendEditor(IUnityObjectBase asset, long exportID)
 	{
-		Reset();
 		WriteTagAnchorRoot(asset, exportID);
 		asset.WalkEditor(this);
 		Writer.WriteLine();
@@ -65,7 +70,6 @@ public class DefaultYamlWalker : AssetWalker
 
 	public DefaultYamlWalker AppendRelease(IUnityObjectBase asset, long exportID)
 	{
-		Reset();
 		WriteTagAnchorRoot(asset, exportID);
 		asset.WalkRelease(this);
 		Writer.WriteLine();
@@ -74,7 +78,6 @@ public class DefaultYamlWalker : AssetWalker
 
 	public DefaultYamlWalker AppendStandard(IUnityObjectBase asset, long exportID)
 	{
-		Reset();
 		WriteTagAnchorRoot(asset, exportID);
 		asset.WalkStandard(this);
 		Writer.WriteLine();
@@ -91,31 +94,20 @@ public class DefaultYamlWalker : AssetWalker
 		Writer.Write(':');
 	}
 
-	public void Reset()
-	{
-		Writer.Flush();
-		stringWriter.GetStringBuilder().Clear();
-		Writer.WriteLine(Head);
-	}
-
-	public sealed override string ToString() => CurrentText;
-
-	public string ToStringAndReset()
-	{
-		string result = ToString();
-		Reset();
-		return result;
-	}
-
-	public sealed override bool EnterAsset<T>(T asset)
+	public sealed override bool EnterAsset(IUnityAssetBase asset)
 	{
 		ThrowIfFlowMapping();
-		if (typeof(T) == typeof(GUID))
+		if (asset is GUID guid)
 		{
 			Writer.Write(' ');
-			Writer.Write(Unsafe.As<T, GUID>(ref asset).ToString());
+			Writer.Write(guid.ToString());
 			JustEnteredListItem = false;
 			return false;
+		}
+		else if (JustEnteredMonoBehaviourStructure)
+		{
+			JustEnteredMonoBehaviourStructure = false;
+			return true;
 		}
 		if (asset.FlowMappedInYaml)
 		{
@@ -155,7 +147,7 @@ public class DefaultYamlWalker : AssetWalker
 		return true;
 	}
 
-	public sealed override void DivideAsset<T>(T asset)
+	public sealed override void DivideAsset(IUnityAssetBase asset)
 	{
 		if (FlowMapping)
 		{
@@ -163,7 +155,7 @@ public class DefaultYamlWalker : AssetWalker
 		}
 	}
 
-	public sealed override void ExitAsset<T>(T asset)
+	public sealed override void ExitAsset(IUnityAssetBase asset)
 	{
 		if (asset.FlowMappedInYaml)
 		{
@@ -176,8 +168,13 @@ public class DefaultYamlWalker : AssetWalker
 		}
 	}
 
-	public sealed override bool EnterField<T>(T asset, string name)
+	public sealed override bool EnterField(IUnityAssetBase asset, string name)
 	{
+		if (name is "m_Structure" && asset is IMonoBehaviour or IScriptedImporter)
+		{
+			JustEnteredMonoBehaviourStructure = true;
+			return true;
+		}
 		if (FlowMapping)
 		{
 			Writer.Write(name);
@@ -200,7 +197,7 @@ public class DefaultYamlWalker : AssetWalker
 		return true;
 	}
 
-	public sealed override void ExitField<T>(T asset, string name)
+	public sealed override void ExitField(IUnityAssetBase asset, string name)
 	{
 	}
 
@@ -227,6 +224,32 @@ public class DefaultYamlWalker : AssetWalker
 	}
 
 	public sealed override void ExitList<T>(AssetList<T> list)
+	{
+	}
+
+	public sealed override bool EnterArray<T>(T[] array)
+	{
+		ThrowIfFlowMapping();
+		if (array.Length == 0)
+		{
+			Writer.Write(" []");
+			return false;
+		}
+		else
+		{
+			DivideArray(array);
+			return true;
+		}
+	}
+
+	public sealed override void DivideArray<T>(T[] array)
+	{
+		Writer.WriteLine();
+		Writer.Write("- ");
+		JustEnteredListItem = true;
+	}
+
+	public sealed override void ExitArray<T>(T[] array)
 	{
 	}
 
@@ -353,7 +376,7 @@ public class DefaultYamlWalker : AssetWalker
 		}
 		else if (typeof(T) == typeof(char))
 		{
-			Writer.Write(Unsafe.As<T, ushort>(ref value));//Not sure about this
+			Writer.Write(Unsafe.As<T, ushort>(ref value));//Might be signed, rather than unsigned.
 		}
 		else if (typeof(T) == typeof(sbyte))
 		{
@@ -444,4 +467,34 @@ public class DefaultYamlWalker : AssetWalker
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
 	private static bool IsStringLike<T>() => IsString<T>() || typeof(T) == typeof(GUID);
+}
+public class StringYamlWalker : DefaultYamlWalker
+{
+	private readonly StringWriter stringWriter;
+	private string CurrentText => stringWriter.ToString();
+
+	public StringYamlWalker() : this(new(CultureInfo.InvariantCulture) { NewLine = "\n" })
+	{
+	}
+
+	private StringYamlWalker(StringWriter stringWriter) : base(stringWriter)
+	{
+		this.stringWriter = stringWriter;
+	}
+
+	public void Reset()
+	{
+		Writer.Flush();
+		stringWriter.GetStringBuilder().Clear();
+		WriteHead();
+	}
+
+	public sealed override string ToString() => CurrentText;
+
+	public string ToStringAndReset()
+	{
+		string result = ToString();
+		Reset();
+		return result;
+	}
 }

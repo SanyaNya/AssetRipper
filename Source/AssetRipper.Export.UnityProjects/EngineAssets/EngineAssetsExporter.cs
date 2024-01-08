@@ -1,6 +1,4 @@
 using AssetRipper.Assets;
-using AssetRipper.Assets.Collections;
-using AssetRipper.Assets.Export;
 using AssetRipper.IO.Files;
 using AssetRipper.IO.Files.Utils;
 using AssetRipper.Mining.PredefinedAssets;
@@ -72,7 +70,7 @@ public class EngineAssetsExporter : IAssetExporter
 		return new(EngineResourceData.FromJson(json));
 	}
 
-	public bool TryCreateCollection(IUnityObjectBase asset, TemporaryAssetCollection temporaryFile, [NotNullWhen(true)] out IExportCollection? exportCollection)
+	public bool TryCreateCollection(IUnityObjectBase asset, [NotNullWhen(true)] out IExportCollection? exportCollection)
 	{
 		if (!IsEngineFile(asset.Collection.Name))
 		{

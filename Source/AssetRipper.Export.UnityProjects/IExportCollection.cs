@@ -1,8 +1,10 @@
-﻿using AssetRipper.Assets.Collections;
+﻿using AssetRipper.Assets;
+using AssetRipper.Assets.Collections;
+using AssetRipper.Assets.Export;
 using AssetRipper.Assets.Metadata;
 using AssetRipper.IO.Files.SerializedFiles;
 
-namespace AssetRipper.Assets.Export
+namespace AssetRipper.Export.UnityProjects
 {
 	public interface IExportCollection
 	{
@@ -14,18 +16,19 @@ namespace AssetRipper.Assets.Export
 		/// <returns>True if export was successful.</returns>
 		bool Export(IExportContainer container, string projectDirectory);
 		/// <summary>
-		/// To be removed
+		/// Is the asset part of this collection?
 		/// </summary>
-		bool IsContains(IUnityObjectBase asset);
+		bool Contains(IUnityObjectBase asset);
 		/// <summary>
-		/// To be removed
+		/// Get the export ID of the asset.
 		/// </summary>
-		long GetExportID(IUnityObjectBase asset);
-		MetaPtr CreateExportPointer(IUnityObjectBase asset, bool isLocal);
+		long GetExportID(IExportContainer container, IUnityObjectBase asset);
+		MetaPtr CreateExportPointer(IExportContainer container, IUnityObjectBase asset, bool isLocal);
 
 		AssetCollection File { get; }
 		TransferInstructionFlags Flags { get; }
 		IEnumerable<IUnityObjectBase> Assets { get; }
+		IEnumerable<IUnityObjectBase> ExportableAssets => Assets;
 		string Name { get; }
 	}
 }

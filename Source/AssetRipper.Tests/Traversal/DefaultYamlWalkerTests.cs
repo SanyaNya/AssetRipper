@@ -1,5 +1,7 @@
 ﻿using AssetRipper.Assets;
 using AssetRipper.Export.UnityProjects;
+using AssetRipper.SourceGenerated.Classes.ClassID_114;
+using AssetRipper.SourceGenerated.Subclasses.StaticBatchInfo;
 
 namespace AssetRipper.Tests.Traversal;
 
@@ -11,13 +13,13 @@ internal class DefaultYamlWalkerTests
 		UnityObjectBase asset = AssetCreator.CreateUnsafe(type);
 		Assert.Multiple(() =>
 		{
-			AssertYamlGeneratedAsExpected(new DefaultYamlWalker(), asset, yamlExpectedHyphen);
+			AssertYamlGeneratedAsExpected(new StringYamlWalker(), asset, yamlExpectedHyphen);
 			AssertYamlGeneratedAsExpected(new YamlWalkerWithoutHyphens(), asset, yamlExpectedNoHyphen ?? yamlExpectedHyphen);
 		});
 
 		static void AssertYamlGeneratedAsExpected(DefaultYamlWalker yamlWalker, UnityObjectBase asset, string yamlExpected)
 		{
-			string yamlActual = yamlWalker.AppendEditor(asset, 1).ToString();
+			string? yamlActual = yamlWalker.AppendEditor(asset, 1).ToString();
 			Assert.That(yamlActual, Is.EqualTo(yamlExpected));
 		}
 	}
@@ -40,8 +42,60 @@ internal class DefaultYamlWalkerTests
 	}
 
 
-	private sealed class YamlWalkerWithoutHyphens : DefaultYamlWalker
+	private sealed class YamlWalkerWithoutHyphens : StringYamlWalker
 	{
 		protected override bool UseHyphenInStringDictionary => false;
+	}
+
+	[Test]
+	public void MonoBehaviourStructureSerializationTest()
+	{
+		const string yamlExpected = """
+			%YAML 1.1
+			%TAG !u! tag:unity3d.com,2011:
+			--- !u!0 &1
+			MonoBehaviour:
+			  m_GameObject: {m_FileID: 0, m_PathID: 0}
+			  m_Enabled: 0
+			  m_Script: {m_FileID: 0, m_PathID: 0}
+			  m_Name: 
+			  firstSubMesh: 0
+			  subMeshCount: 0
+
+			""";
+		MonoBehaviour_2017_3 monoBehaviour = AssetCreator.CreateUnsafe<MonoBehaviour_2017_3>();
+		monoBehaviour.Structure = new StaticBatchInfo();
+		string? yamlActual = new StringYamlWalker().AppendRelease(monoBehaviour, 1).ToString();
+		Assert.That(yamlActual, Is.EqualTo(yamlExpected));
+	}
+
+	[Test]
+	public void MultipleMonoBehaviourStructureSerializationTest()
+	{
+		const string yamlExpected = """
+			%YAML 1.1
+			%TAG !u! tag:unity3d.com,2011:
+			--- !u!0 &1
+			MonoBehaviour:
+			  m_GameObject: {m_FileID: 0, m_PathID: 0}
+			  m_Enabled: 0
+			  m_Script: {m_FileID: 0, m_PathID: 0}
+			  m_Name: 
+			  firstSubMesh: 0
+			  subMeshCount: 0
+			--- !u!0 &2
+			MonoBehaviour:
+			  m_GameObject: {m_FileID: 0, m_PathID: 0}
+			  m_Enabled: 0
+			  m_Script: {m_FileID: 0, m_PathID: 0}
+			  m_Name: 
+			  firstSubMesh: 0
+			  subMeshCount: 0
+
+			""";
+		MonoBehaviour_2017_3 monoBehaviour = AssetCreator.CreateUnsafe<MonoBehaviour_2017_3>();
+		monoBehaviour.Structure = new StaticBatchInfo();
+		string? yamlActual = new StringYamlWalker().AppendRelease(monoBehaviour, 1).AppendRelease(monoBehaviour, 2).ToString();
+		Assert.That(yamlActual, Is.EqualTo(yamlExpected));
 	}
 }

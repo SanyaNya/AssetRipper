@@ -4,12 +4,10 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>Latest</LangVersion>
 		<IsAotCompatible>true</IsAotCompatible>
-		<DebugType>embedded</DebugType>
-		<DebugSymbols>true</DebugSymbols>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
 
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<Copyright>Copyright © ds5678</Copyright>
 		<Authors>ds5678</Authors>

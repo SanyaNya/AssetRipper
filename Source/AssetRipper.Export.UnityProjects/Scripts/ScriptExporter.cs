@@ -1,6 +1,4 @@
 ﻿using AssetRipper.Assets;
-using AssetRipper.Assets.Collections;
-using AssetRipper.Assets.Export;
 using AssetRipper.Export.UnityProjects.Configuration;
 using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.IO.Files;
@@ -25,7 +23,7 @@ namespace AssetRipper.Export.UnityProjects.Scripts
 		public ScriptExportMode ExportMode { get; }
 		internal ScriptDecompiler Decompiler { get; }
 
-		public bool TryCreateCollection(IUnityObjectBase asset, TemporaryAssetCollection temporaryFile, [NotNullWhen(true)] out IExportCollection? exportCollection)
+		public bool TryCreateCollection(IUnityObjectBase asset, [NotNullWhen(true)] out IExportCollection? exportCollection)
 		{
 			if (asset is IMonoScript script)
 			{

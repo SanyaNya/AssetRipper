@@ -4,7 +4,6 @@ using AssetRipper.Assets.Generics;
 using AssetRipper.Assets.Metadata;
 using AssetRipper.Export.UnityProjects.Configuration;
 using AssetRipper.Export.UnityProjects.Project;
-using AssetRipper.Primitives;
 using AssetRipper.Processing.Textures;
 using AssetRipper.SourceGenerated;
 using AssetRipper.SourceGenerated.Classes.ClassID_1006;
@@ -42,7 +41,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 			if (m_convert)
 			{
 				ITextureImporter importer = ImporterFactory.GenerateTextureImporter(container, texture);
-				AddSprites(importer, ((SpriteInformationObject?)Asset.MainAsset)!.Sprites);
+				AddSprites(container, importer, ((SpriteInformationObject?)Asset.MainAsset)!.Sprites);
 				return importer;
 			}
 			else
@@ -72,7 +71,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 			return exportID;
 		}
 
-		private void AddSprites(ITextureImporter importer, IReadOnlyDictionary<ISprite, ISpriteAtlas?>? textureSpriteInformation)
+		private void AddSprites(IExportContainer container, ITextureImporter importer, IReadOnlyDictionary<ISprite, ISpriteAtlas?>? textureSpriteInformation)
 		{
 			if (textureSpriteInformation == null || textureSpriteInformation.Count == 0)
 			{
@@ -115,7 +114,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 				if (m_exportSprites)
 				{
 					AddSpriteSheet(importer, textureSpriteInformation);
-					AddIDToName(importer, textureSpriteInformation);
+					AddIDToName(container, importer, textureSpriteInformation);
 				}
 			}
 			else
@@ -135,7 +134,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 				if (m_exportSprites)
 				{
 					AddSpriteSheet(importer, textureSpriteInformation);
-					AddIDToName(importer, textureSpriteInformation);
+					AddIDToName(container, importer, textureSpriteInformation);
 				}
 			}
 		}
@@ -167,7 +166,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 			}
 		}
 
-		private void AddIDToName(ITextureImporter importer, IReadOnlyDictionary<ISprite, ISpriteAtlas?> textureSpriteInformation)
+		private void AddIDToName(IExportContainer container, ITextureImporter importer, IReadOnlyDictionary<ISprite, ISpriteAtlas?> textureSpriteInformation)
 		{
 			if (importer.SpriteModeE == SpriteImportMode.Multiple)
 			{
@@ -176,7 +175,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 					foreach (ISprite sprite in textureSpriteInformation.Keys)
 					{
 #warning TODO: TEMP:
-						long exportID = GetExportID(sprite);
+						long exportID = GetExportID(container, sprite);
 						ISpriteMetaData smeta = importer.SpriteSheet.GetSpriteMetaData(sprite.Name);
 						smeta.InternalID = exportID;
 						AssetPair<AssetPair<int, long>, Utf8String> pair = importer.InternalIDToNameTable.AddNew();
@@ -189,7 +188,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 				{
 					foreach (ISprite sprite in textureSpriteInformation.Keys)
 					{
-						long exportID = GetExportID(sprite);
+						long exportID = GetExportID(container, sprite);
 						importer.FileIDToRecycleName_AssetDictionary_Int64_Utf8String.Add(exportID, sprite.Name);
 					}
 				}
@@ -197,7 +196,7 @@ namespace AssetRipper.Export.UnityProjects.Textures
 				{
 					foreach (ISprite sprite in textureSpriteInformation.Keys)
 					{
-						long exportID = GetExportID(sprite);
+						long exportID = GetExportID(container, sprite);
 						importer.FileIDToRecycleName_AssetDictionary_Int32_Utf8String.Add((int)exportID, sprite.Name);
 					}
 				}

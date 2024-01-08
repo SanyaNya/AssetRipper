@@ -10,12 +10,11 @@ using AssetRipper.Import.Logging;
 using AssetRipper.Import.Structure.Assembly;
 using AssetRipper.Import.Structure.Assembly.Managers;
 using AssetRipper.IO.Files.Utils;
-using AssetRipper.Primitives;
+using AssetRipper.SourceGenerated.Classes.ClassID_1006;
 using AssetRipper.SourceGenerated.Classes.ClassID_1035;
 using AssetRipper.SourceGenerated.Classes.ClassID_1050;
 using AssetRipper.SourceGenerated.Classes.ClassID_115;
 using AssetRipper.SourceGenerated.Subclasses.PlatformSettingsData_Plugin;
-using System.Diagnostics;
 
 namespace AssetRipper.Export.UnityProjects.Scripts
 {
@@ -142,17 +141,17 @@ namespace AssetRipper.Export.UnityProjects.Scripts
 			return true;
 		}
 
-		public override bool IsContains(IUnityObjectBase asset)
+		public override bool Contains(IUnityObjectBase asset)
 		{
 			return m_scripts.ContainsKey(asset);
 		}
 
-		public override long GetExportID(IUnityObjectBase asset)
+		public override long GetExportID(IExportContainer container, IUnityObjectBase asset)
 		{
 			return ExportIdHandler.GetMainExportID(asset);
 		}
 
-		public override MetaPtr CreateExportPointer(IUnityObjectBase asset, bool isLocal)
+		public override MetaPtr CreateExportPointer(IExportContainer container, IUnityObjectBase asset, bool isLocal)
 		{
 			if (isLocal)
 			{
@@ -162,7 +161,7 @@ namespace AssetRipper.Export.UnityProjects.Scripts
 			IMonoScript script = m_scripts[asset];
 			if (AssetExporter.GetExportType(script.GetAssemblyNameFixed()) is AssemblyExportType.Decompile)
 			{
-				long exportID = GetExportID(asset);
+				long exportID = GetExportID(container, asset);
 				UnityGuid uniqueGUID = ScriptHashing.ComputeScriptGuid(script);
 				return new MetaPtr(exportID, uniqueGUID, AssetExporter.ToExportType(asset));
 			}
@@ -203,7 +202,7 @@ namespace AssetRipper.Export.UnityProjects.Scripts
 		{
 			Span<bool> test = stackalloc bool[1];
 			UnityGuid guid = GetAssemblyGuid(Path.GetFileName(path));
-			IPluginImporter importer = PluginImporter.Create(container.VirtualFile, container.ExportVersion);
+			IPluginImporter importer = PluginImporter.Create(Assets.First().Collection, container.ExportVersion);
 			if (HasPlatformData(importer))
 			{
 				PlatformSettingsData_Plugin anyPlatformSettings = AddPlatformSettings(importer, "Any", Utf8String.Empty);

@@ -13,23 +13,23 @@ namespace AssetRipper.Export.UnityProjects.Project
 			m_file = asset.Collection;
 		}
 
-		public override bool IsContains(IUnityObjectBase asset)
+		public override bool Contains(IUnityObjectBase asset)
 		{
-			return base.IsContains(asset) || m_exportIDs.ContainsKey(asset);
+			return base.Contains(asset) || m_exportIDs.ContainsKey(asset);
 		}
 
-		public override long GetExportID(IUnityObjectBase asset)
+		public override long GetExportID(IExportContainer container, IUnityObjectBase asset)
 		{
 			if (asset.AssetInfo == Asset.AssetInfo)
 			{
-				return base.GetExportID(asset);
+				return base.GetExportID(container, asset);
 			}
 			return m_exportIDs[asset];
 		}
 
 		protected override bool ExportInner(IExportContainer container, string filePath, string dirPath)
 		{
-			return AssetExporter.Export(container, Assets, filePath);
+			return AssetExporter.Export(container, ExportableAssets, filePath);
 		}
 
 		public override IEnumerable<IUnityObjectBase> Assets

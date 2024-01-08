@@ -47,26 +47,26 @@ public class DefaultJsonWalker : AssetWalker
 		stringWriter.GetStringBuilder().Clear();
 	}
 
-	public override bool EnterAsset<T>(T asset)
+	public override bool EnterAsset(IUnityAssetBase asset)
 	{
 		Writer.WriteLine('{');
 		Writer.Indent++;
 		return true;
 	}
 
-	public override void DivideAsset<T>(T asset)
+	public override void DivideAsset(IUnityAssetBase asset)
 	{
 		Writer.WriteLine(',');
 	}
 
-	public override void ExitAsset<T>(T asset)
+	public override void ExitAsset(IUnityAssetBase asset)
 	{
 		Writer.WriteLine();
 		Writer.Indent--;
 		Writer.Write('}');
 	}
 
-	public override bool EnterField<T>(T asset, string name)
+	public override bool EnterField(IUnityAssetBase asset, string name)
 	{
 		Writer.Write(HttpUtility.JavaScriptStringEncode(name, true));
 		Writer.Write(": ");
@@ -86,6 +86,25 @@ public class DefaultJsonWalker : AssetWalker
 	}
 
 	public override void ExitList<T>(AssetList<T> list)
+	{
+		Writer.WriteLine();
+		Writer.Indent--;
+		Writer.Write(']');
+	}
+
+	public override bool EnterArray<T>(T[] array)
+	{
+		Writer.WriteLine('[');
+		Writer.Indent++;
+		return true;
+	}
+
+	public override void DivideArray<T>(T[] array)
+	{
+		Writer.WriteLine(',');
+	}
+
+	public override void ExitArray<T>(T[] array)
 	{
 		Writer.WriteLine();
 		Writer.Indent--;

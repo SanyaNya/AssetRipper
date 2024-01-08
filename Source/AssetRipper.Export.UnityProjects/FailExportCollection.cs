@@ -22,12 +22,12 @@ namespace AssetRipper.Export.UnityProjects
 			return false;
 		}
 
-		public bool IsContains(IUnityObjectBase asset)
+		public bool Contains(IUnityObjectBase asset)
 		{
 			return asset == m_asset;
 		}
 
-		public long GetExportID(IUnityObjectBase asset)
+		public long GetExportID(IExportContainer container, IUnityObjectBase asset)
 		{
 			if (asset == m_asset)
 			{
@@ -41,14 +41,14 @@ namespace AssetRipper.Export.UnityProjects
 			throw new NotSupportedException();
 		}
 
-		public MetaPtr CreateExportPointer(IUnityObjectBase asset, bool isLocal)
+		public MetaPtr CreateExportPointer(IExportContainer container, IUnityObjectBase asset, bool isLocal)
 		{
 			if (isLocal)
 			{
 				throw new ArgumentException(null, nameof(isLocal));
 			}
 
-			long exportId = GetExportID(asset);
+			long exportId = GetExportID(container, asset);
 			AssetType type = AssetExporter.ToExportType(asset);
 			return new MetaPtr(exportId, UnityGuid.MissingReference, type);
 		}

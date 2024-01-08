@@ -46,9 +46,9 @@ namespace AssetRipper.Export.UnityProjects
 		}
 
 		public abstract bool Export(IExportContainer container, string projectDirectory);
-		public abstract bool IsContains(IUnityObjectBase asset);
-		public abstract long GetExportID(IUnityObjectBase asset);
-		public abstract MetaPtr CreateExportPointer(IUnityObjectBase asset, bool isLocal);
+		public abstract bool Contains(IUnityObjectBase asset);
+		public abstract long GetExportID(IExportContainer container, IUnityObjectBase asset);
+		public abstract MetaPtr CreateExportPointer(IExportContainer container, IUnityObjectBase asset, bool isLocal);
 
 		protected void ExportAsset(IExportContainer container, IUnityObjectBase importer, IUnityObjectBase asset, string path, string name)
 		{
@@ -121,6 +121,7 @@ namespace AssetRipper.Export.UnityProjects
 		public abstract AssetCollection File { get; }
 		public virtual TransferInstructionFlags Flags => TransferInstructionFlags.NoTransferInstructionFlags;
 		public abstract IEnumerable<IUnityObjectBase> Assets { get; }
+		public virtual IEnumerable<IUnityObjectBase> ExportableAssets => Assets;
 		public abstract string Name { get; }
 
 		private const string MetaExtension = ".meta";

@@ -1,13 +1,13 @@
 ﻿using AssetRipper.Assets;
 using AssetRipper.Assets.Export;
 using AssetRipper.Assets.Metadata;
-using AssetRipper.SourceGenerated.Classes.ClassID_6;
 
 namespace AssetRipper.Export.UnityProjects.Project
 {
-	public class ManagerExportCollection : AssetExportCollection<IGlobalGameManager>
+	//Todo: change type argument back to IGlobalGameManager when IEditorBuildSettings and IEditorSettings inherit.
+	public class ManagerExportCollection : AssetExportCollection<IUnityObjectBase>
 	{
-		public ManagerExportCollection(IAssetExporter assetExporter, IGlobalGameManager asset) : base(assetExporter, asset) { }
+		public ManagerExportCollection(IAssetExporter assetExporter, IUnityObjectBase asset) : base(assetExporter, asset) { }
 
 		public override bool Export(IExportContainer container, string projectDirectory)
 		{
@@ -22,7 +22,7 @@ namespace AssetRipper.Export.UnityProjects.Project
 			return true;
 		}
 
-		public override long GetExportID(IUnityObjectBase asset)
+		public override long GetExportID(IExportContainer container, IUnityObjectBase asset)
 		{
 			if (asset == Asset)
 			{
@@ -31,7 +31,7 @@ namespace AssetRipper.Export.UnityProjects.Project
 			throw new ArgumentException(null, nameof(asset));
 		}
 
-		public override MetaPtr CreateExportPointer(IUnityObjectBase asset, bool isLocal)
+		public override MetaPtr CreateExportPointer(IExportContainer container, IUnityObjectBase asset, bool isLocal)
 		{
 			throw new NotSupportedException();
 		}
