@@ -25,7 +25,11 @@ namespace AssetRipper.Import.Logging
 
 		public static void Log(LogType type, LogCategory category, string message)
 		{
+			Console.WriteLine($"{type} - {category}:{message}");
 			if (AssetRipperRuntimeInformation.Build.Debug && type == LogType.Debug)
+			
+#if !DEBUG
+			if (type == LogType.Debug)
 			{
 				return;
 			}
