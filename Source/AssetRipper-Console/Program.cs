@@ -1,7 +1,9 @@
-﻿using AssetRipper.Export.UnityProjects;
+﻿using AssetRipper.Assets.Metadata;
+using AssetRipper.Export.UnityProjects;
 using AssetRipper.Export.UnityProjects.Configuration;
 using AssetRipper.Import.Logging;
 using AssetRipper.Processing;
+using System.IO;
 
 namespace AssetRipper.Console
 {
@@ -9,7 +11,22 @@ namespace AssetRipper.Console
 	{
 		private static List<string> inputPaths = new List<string>();
 		private static string outputPath;
-		private static LibraryConfiguration settings;
+		private static LibraryConfiguration settings = LoadSettings();
+		private static ExportHandler exportHandler = new(settings);
+		public static ExportHandler ExportHandler
+		{
+			private get
+			{
+				return exportHandler;
+			}
+			set
+			{
+				ArgumentNullException.ThrowIfNull(value);
+				value.ThrowIfSettingsDontMatch(settings);
+				exportHandler = value;
+			}
+		}
+
 
 		private static void Main(string[] args)
 		{
@@ -30,35 +47,24 @@ namespace AssetRipper.Console
 
 			try
 			{
-				settings = new();
-				settings.ResetToDefaultValues();
-				settings.LogConfigurationValues();
-				GameData gameData = LoadAndProcess(inputPaths);
+				System.Console.WriteLine("here1");
+				GameData gameData = ExportHandler.LoadAndProcess(inputPaths);
+				System.Console.WriteLine("here2");
 				PrepareExportDirectory(outputPath);
-				Ripper.ExportProject(gameData, settings, outputPath, Ripper.GetDefaultPostExporters(), null);
+				ExportHandler.Export(gameData, outputPath);
 			}
-			catch
+			catch (Exception ex) 
 			{
-				System.Console.WriteLine("An extraction error happened");
+				System.Console.WriteLine($"An extraction error happened{ex.Message}");
 				System.Console.ReadLine();
 			}
 		}
 
-		private static GameData LoadAndProcess(IReadOnlyList<string> paths)
+		private static LibraryConfiguration LoadSettings()
 		{
-			GameData gameData = Load(paths);
-			Process(gameData);
-			return gameData;
-		}
-
-		private static GameData Load(IReadOnlyList<string> paths)
-		{
-			return Ripper.Load(paths, settings);
-		}
-
-		private static void Process(GameData gameData)
-		{
-			Ripper.Process(gameData, Ripper.GetDefaultProcessors(settings));
+			LibraryConfiguration settings = new();
+			settings.LoadFromDefaultPath();
+			return settings;
 		}
 
 		private static void PrepareExportDirectory(string path)

@@ -28,7 +28,6 @@ namespace AssetRipper.Import.Logging
 			Console.WriteLine($"{type} - {category}:{message}");
 			if (AssetRipperRuntimeInformation.Build.Debug && type == LogType.Debug)
 			
-#if !DEBUG
 			if (type == LogType.Debug)
 			{
 				return;
