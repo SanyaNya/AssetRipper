@@ -255,7 +255,6 @@ public class CSharpDecompiler :
 				else
 				{
 					writer.Write('[');
-					writer.Write(nameGenerator.GetFullName(attributeType));
 					if (attribute.Signature is { FixedArguments.Count: > 0 } or { NamedArguments.Count: > 0 })
 					{
 						writer.Write('(');
