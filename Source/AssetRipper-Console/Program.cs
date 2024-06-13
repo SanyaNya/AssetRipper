@@ -47,9 +47,7 @@ namespace AssetRipper.Console
 
 			try
 			{
-				System.Console.WriteLine("here1");
 				GameData gameData = ExportHandler.LoadAndProcess(inputPaths);
-				System.Console.WriteLine("here2");
 				PrepareExportDirectory(outputPath);
 				ExportHandler.Export(gameData, outputPath);
 			}

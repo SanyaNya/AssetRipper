@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\AssetRipper.Assets\AssetRipper.Assets.csproj" />
+		<ProjectReference Include="..\AssetRipper.Yaml\AssetRipper.Yaml.csproj" />
 	</ItemGroup>
 
 </Project>
