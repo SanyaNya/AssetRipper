@@ -57,9 +57,10 @@ jobs:
       - name: Install zip
         uses: montudor/action-zip@v1
 
-      - name: Zip output
-        run: zip -qq -r AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip dist publish
-        working-directory: ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}
+      - uses: vimtor/action-zip@v1.2
+        with:
+          files: ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/
+          dest: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
@@ -68,5 +69,5 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}
-          asset_path: ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
+          asset_path: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_content_type: application/octet-stream
