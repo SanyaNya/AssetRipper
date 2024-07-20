@@ -69,7 +69,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
+          name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}
 
       - name: Upload release
         uses: actions/upload-release-asset@v1.0.1
