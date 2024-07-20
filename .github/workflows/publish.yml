@@ -5,6 +5,24 @@ on:
     tags: '**'
 
 jobs:
+  create_release:
+    name: Create release
+    runs-on: ubuntu-latest
+    # Note this. We are going to use that in further jobs.
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
   publish:
     runs-on: ${{ matrix.config.os }}
 
@@ -36,12 +54,19 @@ jobs:
         shell: bash
         run: date -u > ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/compile_time.txt
 
-      - name: Automatic Releases
-        uses: marvinpinto/action-automatic-releases@v1.2.1
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
+      - name: Zip output
+        run: zip -qq -r AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip dist publish
+        working-directory: ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}
+
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          prerelease: false
-          title: "AssetRipper_${{ matrix.config.name }}"
-          files: |
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/*
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}
+          asset_path: ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
+          asset_content_type: application/octet-stream
