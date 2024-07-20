@@ -44,8 +44,4 @@ jobs:
           prerelease: false
           title: "AssetRipper_${{ matrix.config.name }}"
           files: |
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/${{ matrix.config.executable }}
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/*.dll
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/*.so
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/*.dylib
-            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/compile_time.txt
+            ./Source/AssetRipper-Console/bin/Release/${{ matrix.config.runtime }}/publish/*
