@@ -68,6 +68,8 @@ jobs:
 
       - name: Download artifacts
         uses: actions/download-artifact@v1
+        with:
+          name: artifacts
 
       - name: Upload release
         uses: actions/upload-release-asset@v1.0.1
@@ -75,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
+          asset_path: artifacts/AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_content_type: application/zip  
