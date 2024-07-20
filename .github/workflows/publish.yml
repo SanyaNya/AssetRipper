@@ -11,11 +11,11 @@ jobs:
     strategy:
       matrix:
         config:
-          - { name: win_x64, os: windows-latest, runtime: win-x64, executable: AssetRipper-Console.exe }
-          - { name: win_arm64, os: windows-latest, runtime: win-arm64, executable: AssetRipper-Console.exe }
-          - { name: linux_x64, os: ubuntu-latest, runtime: linux-x64, executable: AssetRipper-Console.exe }
-          - { name: mac_x64, os: macos-latest, runtime: osx-x64, executable: AssetRipper-Console.exe }
-          - { name: mac_arm64, os: macos-latest, runtime: osx-arm64, executable: AssetRipper-Console.exe }
+          - { name: win_x64, os: windows-latest, runtime: win-x64 }
+          - { name: win_arm64, os: windows-latest, runtime: win-arm64 }
+          - { name: linux_x64, os: ubuntu-latest, runtime: linux-x64 }
+          - { name: mac_x64, os: macos-latest, runtime: osx-x64 }
+          - { name: mac_arm64, os: macos-latest, runtime: osx-arm64 }
 
     steps:
       - uses: actions/checkout@v4
