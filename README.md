@@ -1,3 +1,8 @@
+# AssetRipper-Console
+
+Usage:
+AssetRipper-Console.exe src_dir -o out_dir
+
 # AssetRipper
 
 [![](https://img.shields.io/github/downloads/AssetRipper/AssetRipper/total.svg)](https://github.com/AssetRipper/AssetRipper/releases)
