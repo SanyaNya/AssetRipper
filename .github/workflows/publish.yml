@@ -67,6 +67,7 @@ jobs:
         with:
           name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}
           path: artifact
+          workflow_conclusion: ""
           skip_unpack: true
       - name: Display artifact
         run: ls -R artifact
