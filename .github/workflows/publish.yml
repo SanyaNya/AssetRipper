@@ -73,6 +73,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ${{ github.GITHUB_WORKSPACE }}/AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
+          asset_path: ${{ github.workspace }}/AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_content_type: application/zip  
