@@ -63,10 +63,11 @@ jobs:
           if-no-files-found: error
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v6
         with:
           name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}
           path: artifact
+          skip_unpack: true
       - name: Display artifact
         run: ls -R artifact
 
@@ -76,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./artifact
+          asset_path: ./artifact/*
           asset_name: AssetRipper-Console-${{ matrix.config.runtime }}-${{ github.ref_name }}.zip
           asset_content_type: application/zip  
