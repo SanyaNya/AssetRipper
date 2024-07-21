@@ -20,6 +20,7 @@ jobs:
 
   publish:
     runs-on: ${{ matrix.config.os }}
+    needs: create_release
 
     strategy:
       matrix:
