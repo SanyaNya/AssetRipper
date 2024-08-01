@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Buffers;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AssetRipper.IO.Files.Utils
@@ -37,12 +38,11 @@ namespace AssetRipper.IO.Files.Utils
 		{
 			string? ext = null;
 			string? name = null;
-			int maxLength = maxNameLength - 4;
 			string validFileName = fileName;
-			if (validFileName.Length > maxLength)
+			if (Encoding.UTF8.GetByteCount(fileName) > maxNameLength)
 			{
 				ext = Path.GetExtension(validFileName);
-				name = validFileName.Substring(0, maxLength - ext.Length);
+				name = TruncateToUTF8ByteLength(fileName, maxNameLength - Encoding.UTF8.GetByteCount(ext));
 				validFileName = name + ext;
 			}
 
@@ -79,7 +79,7 @@ namespace AssetRipper.IO.Files.Utils
 
 		public static bool IsReservedName(string name)
 		{
-			return OperatingSystem.IsWindows() && ReservedNames.Contains(name.ToLowerInvariant());
+			return OperatingSystem.IsWindows() && name.Length is 3 or 4 && ReservedNames.Contains(name.ToLowerInvariant());
 		}
 
 		private static Regex GenerateFileNameRegex()
@@ -120,5 +120,63 @@ namespace AssetRipper.IO.Files.Utils
 			"lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
 		];
 		private static readonly Regex FileNameRegex = GenerateFileNameRegex();
+
+		private static string TruncateToUTF8ByteLength(string str, int maxLength)
+		{
+			int currentByteLength = Encoding.UTF8.GetByteCount(str);
+			byte[] bytes = ArrayPool<byte>.Shared.Rent(currentByteLength);
+			Encoding.UTF8.GetBytes(str, bytes);
+			int validLength = FindValidByteLength(bytes.AsSpan(0, currentByteLength), maxLength);
+			string result = Encoding.UTF8.GetString(bytes.AsSpan(0, validLength));
+			ArrayPool<byte>.Shared.Return(bytes);
+			return result;
+		}
+
+		private static int FindValidByteLength(ReadOnlySpan<byte> bytes, int maxLength)
+		{
+			int validLength = maxLength;
+
+			// ascii char:      0_
+			// two-byte char:   110_   10_
+			// three-byte char: 1110_  10_ _10_
+			// four-byte char : 11110_ 10_ _10_ _10
+
+			if (maxLength >= bytes.Length)
+			{
+				return bytes.Length;
+			}
+
+			// next byte is a beginning, so we can safely truncate to maxLength
+			byte nextByte = bytes[maxLength];
+			if ((nextByte & 0b11_000000) != 0b10_000000)
+			{
+				return maxLength;
+			}
+
+			// move to end of the last full sequence
+			for (int i = maxLength - 1; i >= 0; i--)
+			{
+				byte currentByte = bytes[i];
+
+				if ((currentByte & 0b11_000000) == 0b10_000000)
+				{
+					// continuation byte
+					validLength--;
+				}
+				else if ((currentByte & 0b10000000) == 0b10000000)
+				{
+					// start of multi-byte sequence
+					validLength--;
+					break;
+				}
+				else
+				{
+					// ascii char
+					break;
+				}
+			}
+
+			return validLength;
+		}
 	}
 }
